@@ -1,0 +1,13 @@
+# vscode
+.vscode
+# build files
+/build
+/dist
+# python fiels
+/__pycache__
+# log files
+log.*
+*.log
+# mist
+*.spec
+*.json
