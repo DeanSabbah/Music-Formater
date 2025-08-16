@@ -1,21 +1,25 @@
-from os import scandir, replace
+from os import scandir, replace, remove
 from pathlib import Path
 from tinytag import TinyTag
-import defs, json, random, string, logging
+import defs, json, random, string, logging, re
 
 logger = logging.getLogger(__name__)
 
 music = dict()
+
+def check_permision():
+    random_str = "".join(random.choices(string.ascii_uppercase + string.digits, k=20))
+    open(defs.basepath + f"\\{random_str}", "x")
+    remove(defs.basepath + f"\\{random_str}")
 
 def index_files():
     with scandir(defs.basepath) as entries:
         for entry in entries:
             if TinyTag.SUPPORTED_FILE_EXTENSIONS.__contains__(Path(entry).suffix):
                 track:TinyTag = TinyTag.get(entry)
-                main_artist = track.artist.split(";")[0] # type: ignore
+                main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
                 if not music.__contains__(main_artist):
                     music[main_artist] = dict()
-                    print(main_artist)
                 if not music[main_artist].__contains__(track.album):
                     music[main_artist][track.album] = []
                 music[main_artist][track.album].append({
@@ -38,13 +42,15 @@ def main():
     music.clear()
     # Check for priviliges
     try:
-        random_str = "".join(random.choices(string.ascii_uppercase + string.digits, k=20))
-        Path(defs.basepath + f"\\{random_str}").mkdir()
-        Path(defs.basepath + f"\\{random_str}").rmdir()
+        check_permision()
     except PermissionError:
         #print("Error: Admin proviliges required")
         logger.error("Admin proviliges required")
         raise PermissionError
+    except FileExistsError:
+        # try again
+        logger.warning("File exists, trying again with new string")
+        check_permision()
     except Exception as e:
         logger.fatal("Unkown Error")
         logger.fatal(e)
