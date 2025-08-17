@@ -1,13 +1,19 @@
 import logging
 
+logging.basicConfig(filename="log.txt", format='%(filename)s @ %(asctime)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 
 def init(log_name:str=""):
-    global log_out
-    log_out = log_name
-    if log_name != "":
-        logging.basicConfig(filename=log_name, level=logging.ERROR)
+    # Quit flags
+    global cancel_request
+    cancel_request = False
+    global confiriming_quit
+    confiriming_quit = False
+    # Basic global data
     global basepath
     global json
     json = False
+    #
+    global logger
+    logger = logging.getLogger(__name__)

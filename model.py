@@ -1,9 +1,7 @@
 from os import scandir, replace, remove
 from pathlib import Path
 from tinytag import TinyTag
-import defs, json, random, string, logging, re
-
-logger = logging.getLogger(__name__)
+import defs, json, random, string, logging, re, time
 
 music = dict()
 
@@ -15,6 +13,11 @@ def check_permision():
 def index_files():
     with scandir(defs.basepath) as entries:
         for entry in entries:
+            while defs.confiriming_quit:
+                time.sleep(1)
+            if defs.cancel_request:
+                defs.logger.info("Cancellation requested during indexing.")
+                raise SystemExit
             if TinyTag.SUPPORTED_FILE_EXTENSIONS.__contains__(Path(entry).suffix):
                 track:TinyTag = TinyTag.get(entry)
                 main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
@@ -29,34 +32,67 @@ def index_files():
 
 def move_files():
     for artist in music:
+        while defs.confiriming_quit:
+            time.sleep(1)
+        if defs.cancel_request:
+            defs.logger.info("Cancellation requested during moving files.")
+            raise SystemExit
         for album in music[artist]:
+            while defs.confiriming_quit:
+                time.sleep(1)
+            if defs.cancel_request:
+                defs.logger.info("Cancellation requested during moving files.")
+                raise SystemExit
             for track in music[artist][album]:
-                # Create dir if absent
+                while defs.confiriming_quit:
+                    time.sleep(1)
+                if defs.cancel_request:
+                    defs.logger.info("Cancellation requested during moving files.")
+                    raise SystemExit
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
-                # Move file
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
-                
+
 def main():
-    if defs.log_out != "":
-        logging.basicConfig(filename=defs.log_out, level=logging.INFO)
+    while defs.confiriming_quit:
+        time.sleep(1)
+    if defs.cancel_request:
+        defs.logger.info("Cancellation requested before starting main.")
+        raise SystemExit
+    start_time = time.time()
+    # test timer
+    while(time.time() - start_time < 5):
+        while defs.confiriming_quit:
+            time.sleep(1)
+        if defs.cancel_request:
+            defs.logger.info("Cancellation requested before starting main.")
+            raise SystemExit
     music.clear()
     # Check for priviliges
     try:
         check_permision()
     except PermissionError:
-        #print("Error: Admin proviliges required")
-        logger.error("Admin proviliges required")
+        defs.logger.error("Admin proviliges required")
         raise PermissionError
     except FileExistsError:
         # try again
-        logger.warning("File exists, trying again with new string")
+        defs.logger.warning("File exists, trying again with new string")
         check_permision()
     except Exception as e:
-        logger.fatal("Unkown Error")
-        logger.fatal(e)
+        defs.logger.fatal("Unkown Error")
+        defs.logger.fatal(e)
         raise e
+    while defs.confiriming_quit:
+        time.sleep(1)
+    if defs.cancel_request:
+        defs.logger.info("Cancellation requested before indexing files.")
+        return
     index_files()
     if defs.json:
+        while defs.confiriming_quit:
+            time.sleep(1)
+        if defs.cancel_request:
+            defs.logger.info("Cancellation requested before writing JSON.")
+            return
         serializable_music = {
             artist: {
                 album: [track["name"] for track in tracks]
@@ -66,4 +102,9 @@ def main():
         }
         with open(f'{defs.basepath}\\music_index.json', "wt") as f:
             json.dump(serializable_music, f, indent=2)
+    while defs.confiriming_quit:
+        time.sleep(1)
+    if defs.cancel_request:
+        defs.logger.info("Cancellation requested before moving files.")
+        raise SystemExit
     move_files()
