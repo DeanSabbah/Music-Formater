@@ -1,5 +1,5 @@
 import defs, logging, concurrent.futures, traceback
-from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, ACTIVE, NORMAL
+from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL
 from pathlib import Path
 from model import main
 

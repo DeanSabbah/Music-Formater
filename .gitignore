@@ -9,6 +9,6 @@
 # log files
 log.*
 *.log
-# mist
+# misc
 *.spec
 *.json
