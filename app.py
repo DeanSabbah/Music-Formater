@@ -37,7 +37,7 @@ def set_log_level(level):
             defs.logger.setLevel(logging.ERROR)
         case "Critical":
             defs.logger.setLevel(logging.CRITICAL)
-    defs.logger.info("set log level to " + level)
+    defs.logger.info("Setting log level to " + level)
 
 def on_closing():
     defs.logger.info("Confirming quit")

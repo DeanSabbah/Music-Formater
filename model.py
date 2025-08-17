@@ -15,6 +15,7 @@ def index_files():
         for entry in entries:
             defs.logger.info("Indexing files")
             while defs.confiriming_quit:
+                defs.logger.debug("Awaiting responce for quit confirmation")
                 time.sleep(1)
             if defs.cancel_request:
                 defs.logger.debug("Cancellation requested during indexing.")
@@ -38,18 +39,21 @@ def move_files():
     defs.logger.info("Moving files")
     for artist in music:
         while defs.confiriming_quit:
+            defs.logger.debug("Awaiting responce for quit confirmation")
             time.sleep(1)
         if defs.cancel_request:
-            defs.logger.debug("Cancellation requested during moving files.")
+            defs.logger.info("Cancellation requested during moving files.")
             raise SystemExit
         for album in music[artist]:
             while defs.confiriming_quit:
+                defs.logger.debug("Awaiting responce for quit confirmation")
                 time.sleep(1)
             if defs.cancel_request:
-                defs.logger.debug("Cancellation requested during moving files.")
+                defs.logger.info("Cancellation requested during moving files.")
                 raise SystemExit
             for track in music[artist][album]:
                 while defs.confiriming_quit:
+                    defs.logger.debug("Awaiting responce for quit confirmation")
                     time.sleep(1)
                 if defs.cancel_request:
                     defs.logger.info("Cancellation requested during moving files.")
@@ -60,6 +64,7 @@ def move_files():
 
 def main():
     while defs.confiriming_quit:
+        defs.logger.debug("Awaiting responce for quit confirmation")
         time.sleep(1)
     if defs.cancel_request:
         defs.logger.info("Cancellation requested before starting main.")
@@ -68,6 +73,7 @@ def main():
     # test timer
     # while(time.time() - start_time < 5):
     #     while defs.confiriming_quit:
+    #         defs.logger.debug("Awaiting responce for quit confirmation")
     #         time.sleep(1)
     #     if defs.cancel_request:
     #         defs.logger.info("Cancellation requested before starting main.")
@@ -88,6 +94,7 @@ def main():
         defs.logger.fatal(e)
         raise e
     while defs.confiriming_quit:
+        defs.logger.debug("Awaiting responce for quit confirmation")
         time.sleep(1)
     if defs.cancel_request:
         defs.logger.info("Cancellation requested before indexing files.")
@@ -95,6 +102,7 @@ def main():
     index_files()
     if defs.json:
         while defs.confiriming_quit:
+            defs.logger.debug("Awaiting responce for quit confirmation")
             time.sleep(1)
         if defs.cancel_request:
             defs.logger.info("Cancellation requested before writing JSON.")
@@ -109,6 +117,7 @@ def main():
         with open(f'{defs.basepath}\\music_index.json', "wt") as f:
             json.dump(serializable_music, f, indent=2)
     while defs.confiriming_quit:
+        defs.logger.debug("Awaiting responce for quit confirmation")
         time.sleep(1)
     if defs.cancel_request:
         defs.logger.info("Cancellation requested before moving files.")
