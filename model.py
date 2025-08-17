@@ -22,9 +22,12 @@ def index_files():
                 track:TinyTag = TinyTag.get(entry)
                 main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
                 if not music.__contains__(main_artist):
+                    defs.logger.info(f"Adding {main_artist} to index")
                     music[main_artist] = dict()
                 if not music[main_artist].__contains__(track.album):
+                    defs.logger.info(f"Adding {track.album} to index")
                     music[main_artist][track.album] = []
+                defs.logger.info(f"Adding {track.title} to index")
                 music[main_artist][track.album].append({
                     "name": track.title,
                     "path": entry
@@ -49,6 +52,7 @@ def move_files():
                 if defs.cancel_request:
                     defs.logger.info("Cancellation requested during moving files.")
                     raise SystemExit
+                defs.logger.info(f"Moving {track["path"]} to {defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
 
