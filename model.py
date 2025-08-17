@@ -52,7 +52,7 @@ def move_files():
                 if defs.cancel_request:
                     defs.logger.info("Cancellation requested during moving files.")
                     raise SystemExit
-                defs.logger.info(f"Moving {track["path"]} to {defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
+                defs.logger.info(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
 
