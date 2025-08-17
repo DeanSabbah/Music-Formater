@@ -3,7 +3,8 @@
 # build files
 /build
 /dist
-# python fiels
+# python files
+/.venv
 /__pycache__
 # log files
 log.*

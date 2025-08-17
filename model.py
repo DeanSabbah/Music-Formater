@@ -1,7 +1,7 @@
 from os import scandir, replace, remove
 from pathlib import Path
 from tinytag import TinyTag
-import defs, json, random, string, logging, re, time
+import defs, json, random, string, re, time
 
 music = dict()
 
