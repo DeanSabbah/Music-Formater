@@ -13,10 +13,11 @@ def check_permision():
 def index_files():
     with scandir(defs.basepath) as entries:
         for entry in entries:
+            defs.logger.info("Indexing files")
             while defs.confiriming_quit:
                 time.sleep(1)
             if defs.cancel_request:
-                defs.logger.info("Cancellation requested during indexing.")
+                defs.logger.debug("Cancellation requested during indexing.")
                 raise SystemExit
             if TinyTag.SUPPORTED_FILE_EXTENSIONS.__contains__(Path(entry).suffix):
                 track:TinyTag = TinyTag.get(entry)
@@ -34,17 +35,18 @@ def index_files():
                 })
 
 def move_files():
+    defs.logger.info("Moving files")
     for artist in music:
         while defs.confiriming_quit:
             time.sleep(1)
         if defs.cancel_request:
-            defs.logger.info("Cancellation requested during moving files.")
+            defs.logger.debug("Cancellation requested during moving files.")
             raise SystemExit
         for album in music[artist]:
             while defs.confiriming_quit:
                 time.sleep(1)
             if defs.cancel_request:
-                defs.logger.info("Cancellation requested during moving files.")
+                defs.logger.debug("Cancellation requested during moving files.")
                 raise SystemExit
             for track in music[artist][album]:
                 while defs.confiriming_quit:
@@ -52,7 +54,7 @@ def move_files():
                 if defs.cancel_request:
                     defs.logger.info("Cancellation requested during moving files.")
                     raise SystemExit
-                defs.logger.info(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
+                defs.logger.debug(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
 

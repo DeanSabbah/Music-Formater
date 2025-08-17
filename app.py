@@ -27,6 +27,8 @@ def set_log_level(level):
         return
     defs.logger.disabled = False
     match level:
+        case "Debug":
+            defs.logger.setLevel(logging.DEBUG)
         case "Info":
             defs.logger.setLevel(logging.INFO)
         case "Warning":
@@ -109,7 +111,7 @@ log_label = ttk.Label(mainframe, text="Log level: ")
 log_label.grid(column=3, row=2, sticky=(E))
 
 log_choice = StringVar()
-log_options = ["Off", "Info", "Warning", "Error", "Critical"]
+log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
 log_select = ttk.OptionMenu(mainframe, log_choice, "Off", *log_options, command=set_log_level)
 log_select.grid(column=4, row=2, sticky=(W + E))
 
