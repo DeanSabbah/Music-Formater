@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfig(filename="log.txt", format='%(filename)s @ %(asctime)s: %(message)s')
+logging.basicConfig(filename="log.txt", format='%(levelname)-8s:: %(filename)-8s @ %(asctime)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 
