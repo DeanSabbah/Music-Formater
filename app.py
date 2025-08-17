@@ -100,15 +100,18 @@ root.rowconfigure(0, weight=1)
 
 dir_path = StringVar()
 dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
-dir_path_entry.grid(column=2, row=1, sticky=(W + E))
+dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
 dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
-dir_button.grid(column=3, row=1, sticky=(W + E))
+dir_button.grid(column=4, row=1, sticky=(E))
+
+log_label = ttk.Label(mainframe, text="Log level: ")
+log_label.grid(column=3, row=2, sticky=(E))
 
 log_choice = StringVar()
 log_options = ["Off", "Info", "Warning", "Error", "Critical"]
 log_select = ttk.OptionMenu(mainframe, log_choice, "Off", *log_options, command=set_log_level)
-log_select.grid(column=3, row=2, sticky=(E))
+log_select.grid(column=4, row=2, sticky=(W + E))
 
 json_var = StringVar()
 json_check = ttk.Checkbutton(mainframe, text="Generate JSON", command=switch_json, variable=json_var)
@@ -118,7 +121,7 @@ run_button = ttk.Button(mainframe, text="Run", command=start)
 run_button.grid(column=2, row=3, sticky=(S + W))
 
 close_button = ttk.Button(mainframe, text="Close", command=on_closing)
-close_button.grid(column=3, row=3, sticky=(S + E))
+close_button.grid(column=4, row=3, sticky=(S + E))
 
 dir_path_entry.focus()
 
