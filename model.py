@@ -60,12 +60,12 @@ def main():
         raise SystemExit
     start_time = time.time()
     # test timer
-    while(time.time() - start_time < 5):
-        while defs.confiriming_quit:
-            time.sleep(1)
-        if defs.cancel_request:
-            defs.logger.info("Cancellation requested before starting main.")
-            raise SystemExit
+    # while(time.time() - start_time < 5):
+    #     while defs.confiriming_quit:
+    #         time.sleep(1)
+    #     if defs.cancel_request:
+    #         defs.logger.info("Cancellation requested before starting main.")
+    #         raise SystemExit
     music.clear()
     # Check for priviliges
     try:
