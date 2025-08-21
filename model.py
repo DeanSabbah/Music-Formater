@@ -81,8 +81,8 @@ def main():
     if defs.cancel_request:
         defs.logger.info("Cancellation requested before starting main.")
         raise SystemExit
-    start_time = time.time()
     # test timer
+    #start_time = time.time()
     # while(time.time() - start_time < 5):
     #     defs.percent_complete = random.uniform(0.0, 1.0) * 100
     #     while defs.confiriming_quit:
