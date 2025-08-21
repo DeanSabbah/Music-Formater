@@ -5,11 +5,14 @@ logger = logging.getLogger(__name__)
 
 def init():
     global cancel_request  # noqa
-    cancel_request = False
     global confiriming_quit  # noqa
-    confiriming_quit = False
     global basepath  # noqa
     global json  # noqa
-    json = False
     global logger  # noqa
+    global percent_complete
+    
+    cancel_request = False
+    confiriming_quit = False
+    json = False
     logger = logging.getLogger(__name__)
+    percent_complete = 0

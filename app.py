@@ -74,15 +74,26 @@ def start():
             run_button["state"] = NORMAL
             json_check["state"] = NORMAL
             dir_button["state"] = NORMAL
-            dir_path_entry["state"] = NORMAL
+            progress_bar.grid_remove()
+            dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
+        def update_progress_bar():
+            while True:
+                if defs.percent_complete == 1.0 or defs.cancel_request:
+                    return
+                progress_bar.step(defs.percent_complete * 100)
+            
+        
         run_button["state"] = DISABLED
         json_check["state"] = DISABLED
         dir_button["state"] = DISABLED
-        dir_path_entry["state"] = DISABLED
+        dir_path_entry.grid_remove()
+        progress_bar.grid(column=2, row=1, sticky=(E + W))
+        progress_bar.step(0)
         
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
         executor.submit(run_main)
+        executor.submit(update_progress_bar)
     except ValueError:
         defs.logger.warning("Invalid Path")
         messagebox.showerror("Invalid path", "Please enter a valid path")
@@ -103,6 +114,8 @@ root.rowconfigure(0, weight=1)
 dir_path = StringVar()
 dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
 dir_path_entry.grid(column=2, row=1, sticky=(E + W))
+
+progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate")
 
 dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
 dir_button.grid(column=4, row=1, sticky=(E))

@@ -5,6 +5,7 @@ import defs, json, random, string, re, time
 
 music = dict()
 
+# Try to create a new file with random name, then delete it
 def check_permision():
     random_str = "".join(random.choices(string.ascii_uppercase + string.digits, k=20))
     open(defs.basepath + f"\\{random_str}", "x")
@@ -12,8 +13,13 @@ def check_permision():
 
 def index_files():
     with scandir(defs.basepath) as entries:
+        entries = list(entries)
+        num_files = len(entries)
+        current_file = 0
+        defs.logger.info("Indexing files")
         for entry in entries:
-            defs.logger.info("Indexing files")
+            current_file += 1
+            defs.percent_complete = (current_file/num_files) * 0.33
             while defs.confiriming_quit:
                 defs.logger.debug("Awaiting responce for quit confirmation")
                 time.sleep(1)
@@ -34,8 +40,11 @@ def index_files():
                     "name": track.title,
                     "path": entry
                 })
+        defs.percent_complete = 0.33
 
 def move_files():
+    num_files = len(music)
+    current_file = 0
     defs.logger.info("Moving files")
     for artist in music:
         while defs.confiriming_quit:
@@ -52,6 +61,8 @@ def move_files():
                 defs.logger.info("Cancellation requested during moving files.")
                 raise SystemExit
             for track in music[artist][album]:
+                current_file += 1
+                defs.percent_complete += (current_file/num_files) * 0.67
                 while defs.confiriming_quit:
                     defs.logger.debug("Awaiting responce for quit confirmation")
                     time.sleep(1)
@@ -61,6 +72,7 @@ def move_files():
                 defs.logger.debug(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
+    defs.percent_complete = 1.0
 
 def main():
     while defs.confiriming_quit:
@@ -72,11 +84,12 @@ def main():
     start_time = time.time()
     # test timer
     # while(time.time() - start_time < 5):
+    #     defs.percent_complete = random.uniform(0.0, 1.0) * 100
     #     while defs.confiriming_quit:
     #         defs.logger.debug("Awaiting responce for quit confirmation")
     #         time.sleep(1)
     #     if defs.cancel_request:
-    #         defs.logger.info("Cancellation requested before starting main.")
+    #         defs.logger.info("Cancellation requested during test timer.")
     #         raise SystemExit
     music.clear()
     # Check for priviliges
