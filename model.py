@@ -10,6 +10,16 @@ def check_permision():
     random_str = "".join(random.choices(string.ascii_uppercase + string.digits, k=20))
     open(defs.basepath + f"\\{random_str}", "x")
     remove(defs.basepath + f"\\{random_str}")
+    
+def wait_for_choice():
+    while defs.confiriming_quit:
+        defs.logger.debug("Awaiting responce for quit confirmation")
+        time.sleep(1)
+        
+def check_canceled(pos:str):
+    if defs.cancel_request:
+        defs.logger.info(f"Cancellation requested {pos}.")
+        raise SystemExit
 
 def index_files():
     with scandir(defs.basepath) as entries:
@@ -20,12 +30,8 @@ def index_files():
         for entry in entries:
             current_file += 1
             defs.percent_complete = (current_file/num_files) * 0.33
-            while defs.confiriming_quit:
-                defs.logger.debug("Awaiting responce for quit confirmation")
-                time.sleep(1)
-            if defs.cancel_request:
-                defs.logger.debug("Cancellation requested during indexing.")
-                raise SystemExit
+            wait_for_choice()
+            check_canceled("during file indexing")
             if TinyTag.SUPPORTED_FILE_EXTENSIONS.__contains__(Path(entry).suffix):
                 track:TinyTag = TinyTag.get(entry)
                 main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
@@ -45,39 +51,25 @@ def index_files():
 def move_files():
     num_files = len(music)
     current_file = 0
-    defs.logger.info("Moving files")
+    defs.logger.info("during moving files")
     for artist in music:
-        while defs.confiriming_quit:
-            defs.logger.debug("Awaiting responce for quit confirmation")
-            time.sleep(1)
-        if defs.cancel_request:
-            defs.logger.info("Cancellation requested during moving files.")
-            raise SystemExit
+        wait_for_choice()
+        check_canceled("during moving files")
         for album in music[artist]:
-            while defs.confiriming_quit:
-                defs.logger.debug("Awaiting responce for quit confirmation")
-                time.sleep(1)
-            if defs.cancel_request:
-                defs.logger.info("Cancellation requested during moving files.")
-                raise SystemExit
+            wait_for_choice()
+            check_canceled("during moving files")
             for track in music[artist][album]:
                 current_file += 1
                 defs.percent_complete += (current_file/num_files) * 0.67
-                while defs.confiriming_quit:
-                    defs.logger.debug("Awaiting responce for quit confirmation")
-                    time.sleep(1)
-                if defs.cancel_request:
-                    defs.logger.info("Cancellation requested during moving files.")
-                    raise SystemExit
+                wait_for_choice()
+                check_canceled("during moving files")
                 defs.logger.debug(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
     defs.percent_complete = 1.0
 
 def main():
-    while defs.confiriming_quit:
-        defs.logger.debug("Awaiting responce for quit confirmation")
-        time.sleep(1)
+    wait_for_choice()
     if defs.cancel_request:
         defs.logger.info("Cancellation requested before starting main.")
         raise SystemExit
@@ -85,12 +77,8 @@ def main():
     #start_time = time.time()
     # while(time.time() - start_time < 5):
     #     defs.percent_complete = random.uniform(0.0, 1.0) * 100
-    #     while defs.confiriming_quit:
-    #         defs.logger.debug("Awaiting responce for quit confirmation")
-    #         time.sleep(1)
-    #     if defs.cancel_request:
-    #         defs.logger.info("Cancellation requested during test timer.")
-    #         raise SystemExit
+    #     wait_for_choice()
+    #     check_canceled("test timer")
     music.clear()
     # Check for priviliges
     try:
@@ -106,20 +94,12 @@ def main():
         defs.logger.fatal("Unkown Error")
         defs.logger.fatal(e)
         raise e
-    while defs.confiriming_quit:
-        defs.logger.debug("Awaiting responce for quit confirmation")
-        time.sleep(1)
-    if defs.cancel_request:
-        defs.logger.info("Cancellation requested before indexing files.")
-        return
+    wait_for_choice()
+    check_canceled("before indexing files")
     index_files()
     if defs.json:
-        while defs.confiriming_quit:
-            defs.logger.debug("Awaiting responce for quit confirmation")
-            time.sleep(1)
-        if defs.cancel_request:
-            defs.logger.info("Cancellation requested before writing JSON.")
-            return
+        wait_for_choice()
+        check_canceled("before writing JSON")
         serializable_music = {
             artist: {
                 album: [track["name"] for track in tracks]
@@ -129,10 +109,6 @@ def main():
         }
         with open(f'{defs.basepath}\\music_index.json', "wt") as f:
             json.dump(serializable_music, f, indent=2)
-    while defs.confiriming_quit:
-        defs.logger.debug("Awaiting responce for quit confirmation")
-        time.sleep(1)
-    if defs.cancel_request:
-        defs.logger.info("Cancellation requested before moving files.")
-        raise SystemExit
+    wait_for_choice()
+    check_canceled("before moving files")
     move_files()
