@@ -14,7 +14,7 @@ def check_permision():
 def wait_for_choice():
     while defs.confiriming_quit:
         defs.logger.debug("Awaiting responce for quit confirmation")
-        time.sleep(1)
+        time.sleep(0.5)
         
 def check_canceled(pos:str):
     if defs.cancel_request:
@@ -74,9 +74,8 @@ def main():
         defs.logger.info("Cancellation requested before starting main.")
         raise SystemExit
     # test timer
-    #start_time = time.time()
+    # start_time = time.time()
     # while(time.time() - start_time < 5):
-    #     defs.percent_complete = random.uniform(0.0, 1.0) * 100
     #     wait_for_choice()
     #     check_canceled("test timer")
     music.clear()

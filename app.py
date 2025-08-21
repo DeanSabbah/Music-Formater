@@ -1,4 +1,4 @@
-import defs, logging, concurrent.futures, traceback
+import defs, logging, concurrent.futures, traceback, time
 from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL
 from pathlib import Path
 from model import main
@@ -43,12 +43,15 @@ def on_closing():
     defs.logger.info("Confirming quit")
     defs.confiriming_quit = True
     if messagebox.askokcancel("Quit", "Are you sure you want to quit?"):
-        defs.logger.info("Quitting")
-        defs.cancel_request = True
-        if executor is not None:
-            executor.shutdown(wait=False, cancel_futures=True)
-        root.destroy()
+        close()
     defs.confiriming_quit = False
+
+def close():
+    defs.logger.info("Quitting")
+    defs.cancel_request = True
+    if executor is not None:
+        executor.shutdown(wait=False, cancel_futures=True)
+    root.destroy()
 
 def start():
     try:
@@ -65,12 +68,11 @@ def start():
             except PermissionError:
                 root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
             except SystemExit:
-                root.destroy()
                 return
             except Exception:
                 defs.logger.fatal("Unknown error, quitting\n" + traceback.format_exc())
                 root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
-                root.after(0, root.destroy)
+                root.after(0, close)
             run_button["state"] = NORMAL
             json_check["state"] = NORMAL
             dir_button["state"] = NORMAL
@@ -82,6 +84,7 @@ def start():
                 if defs.percent_complete == 1.0 or defs.cancel_request:
                     return
                 progress_bar.step(defs.percent_complete * 100)
+                time.sleep(0.5)
             
         
         run_button["state"] = DISABLED
