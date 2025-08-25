@@ -4,15 +4,17 @@ logging.basicConfig(filename="log.txt", format='%(levelname)-8s:: %(filename)-8s
 logger = logging.getLogger(__name__)
 
 def init():
-    global cancel_request  # noqa
-    global confiriming_quit  # noqa
-    global basepath  # noqa
-    global json  # noqa
-    global logger  # noqa
+    # Define globals
+    global cancel_request
+    global confiriming_quit
+    global basepath
+    global json_out
+    global logger
     global percent_complete
     
-    cancel_request = False
-    confiriming_quit = False
-    json = False
-    logger = logging.getLogger(__name__)
-    percent_complete = 0
+    # Initial values
+    cancel_request     = False
+    confiriming_quit   = False
+    json_out           = False
+    logger             = logging.getLogger(__name__)
+    percent_complete   = 0

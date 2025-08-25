@@ -8,8 +8,8 @@ defs.logger.disabled = True
 executor = None
 
 def switch_json():
-    defs.logger.info("Switching json to " + str(not defs.json))
-    defs.json = not defs.json
+    defs.logger.info("Switching json to " + str(not defs.json_out))
+    defs.json_out = not defs.json_out
 
 def get_path():
     location = filedialog.askdirectory()
@@ -18,7 +18,7 @@ def get_path():
         dir_path.set(location)
     except Exception:
         defs.logger.fatal("Unkown Error, Quitting\n" + traceback.format_exc())
-        root.destroy()
+        close()
         return
 
 def set_log_level(level):
@@ -83,7 +83,7 @@ def start():
             while True:
                 if defs.percent_complete == 1.0 or defs.cancel_request:
                     return
-                progress_bar.step(defs.percent_complete * 100)
+                progress_bar["value"] = defs.percent_complete * 100
                 time.sleep(0.5)
             
         
@@ -92,7 +92,7 @@ def start():
         dir_button["state"] = DISABLED
         dir_path_entry.grid_remove()
         progress_bar.grid(column=2, row=1, sticky=(E + W))
-        progress_bar.step(0)
+        progress_bar["value"] = 0
         
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
         executor.submit(run_main)
@@ -118,7 +118,7 @@ dir_path = StringVar()
 dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
 dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
-progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate")
+progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
 
 dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
 dir_button.grid(column=4, row=1, sticky=(E))
