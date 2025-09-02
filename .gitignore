@@ -4,6 +4,8 @@
 /build
 /dist
 *.spec
+# test files
+/tests/__pycache__
 # python files
 /.venv
 /__pycache__
