@@ -5,12 +5,12 @@ logger = logging.getLogger(__name__)
 
 def init():
     # Define globals
-    global cancel_request
-    global confiriming_quit
-    global basepath
-    global json_out
-    global logger
-    global percent_complete
+    global cancel_request   # noqa
+    global confiriming_quit # noqa
+    global basepath         # noqa
+    global json_out         # noqa
+    global logger           # noqa
+    global percent_complete # noqa
     
     # Initial values
     cancel_request     = False

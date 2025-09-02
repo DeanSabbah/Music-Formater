@@ -50,6 +50,7 @@ def index_files() -> int:
             if TinyTag.SUPPORTED_FILE_EXTENSIONS.__contains__(Path(entry).suffix):
                 indexed_files += 1
                 track:TinyTag = TinyTag.get(entry)
+                # Split using common seperators for tracks with multiple artists
                 main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
                 if not music.__contains__(main_artist):
                     defs.logger.debug(f"Adding {main_artist} to index")
@@ -74,7 +75,7 @@ def move_files(num_files:int):
             for track in music[artist][album]:
                 check_canceled("during moving files")
                 current_file += 1
-                defs.logger.debug(f"Moving >>{track["path"].path}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
+                defs.logger.debug(f"Moving >>{track["path"]}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
                 Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
                 replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
                 defs.percent_complete = 0.33 + (current_file/num_files) * 0.67
@@ -96,7 +97,7 @@ def output_json():
 
 def main():
     check_canceled("before starting main")
-    
+    wait(1)
     music.clear()
     defs.percent_complete = 0
     # Check for priviliges

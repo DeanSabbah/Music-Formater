@@ -54,6 +54,7 @@ def close():
     root.destroy()
 
 def start():
+    global executor
     try:
         path = dir_path.get()
         if not Path(path).exists() or path == '':
@@ -72,14 +73,17 @@ def start():
             except SystemExit:
                 return
             except Exception:
-                defs.logger.fatal("Unknown error, quitting\n" + traceback.format_exc())
+                defs.logger.fatal("Unknown error\n" + traceback.format_exc())
                 root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
                 root.after(0, close)
+            
             defs.logger.info("Formatting completed")
+            
             run_button["state"] = NORMAL
             json_check["state"] = NORMAL
             dir_button["state"] = NORMAL
             log_select["state"] = NORMAL
+            
             progress_bar.grid_remove()
             dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
@@ -92,6 +96,7 @@ def start():
         json_check["state"] = DISABLED
         dir_button["state"] = DISABLED
         log_select["state"] = DISABLED
+        
         dir_path_entry.grid_remove()
         progress_bar.grid(column=2, row=1, sticky=(E + W))
         progress_bar["value"] = 0
