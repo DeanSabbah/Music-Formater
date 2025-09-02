@@ -3,12 +3,13 @@
 # build files
 /build
 /dist
+*.spec
 # python files
 /.venv
 /__pycache__
 # log files
+log_*.*
 log.*
 *.log
 # misc
-*.spec
 *.json

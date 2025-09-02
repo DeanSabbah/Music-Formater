@@ -67,36 +67,38 @@ def start():
                 root.after(0, lambda: messagebox.showinfo("Done", "Formatting complete!"))
             except PermissionError:
                 root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
+            except FileExistsError:
+                root.after(0, lambda: messagebox.showerror("Unable to verify permision level", "Unable to verify permision level, please try again"))
             except SystemExit:
                 return
             except Exception:
                 defs.logger.fatal("Unknown error, quitting\n" + traceback.format_exc())
                 root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
                 root.after(0, close)
+            defs.logger.info("Formatting completed")
             run_button["state"] = NORMAL
             json_check["state"] = NORMAL
             dir_button["state"] = NORMAL
+            log_select["state"] = NORMAL
             progress_bar.grid_remove()
             dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
         def update_progress_bar():
-            while True:
-                if defs.percent_complete == 1.0 or defs.cancel_request:
-                    return
-                progress_bar["value"] = defs.percent_complete * 100
-                time.sleep(0.5)
-            
+            progress_bar["value"] = defs.percent_complete * 100
+            if not defs.percent_complete >= 0.999 and not defs.cancel_request:
+                root.after(500, update_progress_bar)
         
         run_button["state"] = DISABLED
         json_check["state"] = DISABLED
         dir_button["state"] = DISABLED
+        log_select["state"] = DISABLED
         dir_path_entry.grid_remove()
         progress_bar.grid(column=2, row=1, sticky=(E + W))
         progress_bar["value"] = 0
         
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(run_main)
-        executor.submit(update_progress_bar)
+        update_progress_bar()
     except ValueError:
         defs.logger.warning("Invalid Path")
         messagebox.showerror("Invalid path", "Please enter a valid path")

@@ -1,6 +1,6 @@
-import logging
+import logging, datetime
 
-logging.basicConfig(filename="log.txt", format='%(levelname)-8s:: %(filename)-8s @ %(asctime)s: %(message)s')
+logging.basicConfig(filename=f"log_{datetime.date.today().year}-{datetime.date.today().month}-{datetime.date.today().day}.txt", format='%(levelname)-8s:: %(filename)-8s @ %(asctime)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 def init():
