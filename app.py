@@ -59,7 +59,6 @@ def start():
         path = dir_path.get()
         if not Path(path).exists() or path == '':
             raise ValueError
-        path = path.replace('/', '\\')
         defs.basepath = path
 
         def run_main():

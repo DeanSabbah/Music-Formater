@@ -15,8 +15,8 @@ def wait(sec):
 def check_permision():
     random_str = "".join(random.choices(string.ascii_uppercase + string.digits, k=20))
     try:
-        open(defs.basepath + f"\\{random_str}", "x")
-        remove(defs.basepath + f"\\{random_str}")
+        open(defs.basepath + f"/{random_str}", "x")
+        remove(defs.basepath + f"/{random_str}")
     except FileExistsError:
         if check_permision.number_of_tries >= 2:   # type: ignore
             defs.logger.warning("File exists, too many tries")
@@ -75,9 +75,9 @@ def move_files(num_files:int):
             for track in music[artist][album]:
                 check_canceled("during moving files")
                 current_file += 1
-                defs.logger.debug(f"Moving >>{track["path"]}<< to >>{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
-                Path(f"{defs.basepath}\\{artist}\\{album}").mkdir(parents=True, exist_ok=True)
-                replace(track["path"], f"{defs.basepath}\\{artist}\\{album}\\{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
+                defs.logger.debug(f"Moving >>{track["path"]}<< to >>{defs.basepath}/{artist}/{album}/{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
+                Path(f"{defs.basepath}/{artist}/{album}").mkdir(parents=True, exist_ok=True)
+                replace(track["path"], f"{defs.basepath}/{artist}/{album}/{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
                 defs.percent_complete = 0.33 + (current_file/num_files) * 0.67
     defs.percent_complete = 0.999
     
@@ -92,7 +92,7 @@ def output_json():
         for artist, albums in music.items()
     }
     defs.logger.info("Writing JSON")
-    with open(f'{defs.basepath}\\music_index.json', "wt") as f:
+    with open(f'{defs.basepath}/music_index.json', "wt") as f:
         json.dump(serializable_music, f, indent=2)
 
 def main():
