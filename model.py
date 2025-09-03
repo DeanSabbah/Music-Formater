@@ -1,7 +1,7 @@
 from os import scandir, replace, remove
 from pathlib import Path
 from tinytag import TinyTag
-import defs, json, random, string, re, time
+import defs, json, random, string, re, time, traceback
 
 music = dict()
 
@@ -107,8 +107,7 @@ def main():
         defs.logger.error("Admin proviliges required")
         raise PermissionError
     except Exception as e:
-        defs.logger.fatal("Unkown Error")
-        defs.logger.fatal(e)
+        defs.logger.fatal("Unknown error\n" + traceback.format_exc())
         raise e
     check_canceled("before indexing files")
     num_files = index_files()

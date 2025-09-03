@@ -5,6 +5,7 @@
 /dist
 *.spec
 # test files
+/.pytest_cache
 /tests/__pycache__
 # python files
 /.venv
