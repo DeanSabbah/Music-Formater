@@ -97,7 +97,6 @@ def output_json():
 
 def main():
     check_canceled("before starting main")
-    wait(1)
     music.clear()
     defs.percent_complete = 0
     # Check for priviliges
