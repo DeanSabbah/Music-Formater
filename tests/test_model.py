@@ -8,7 +8,19 @@ class FakeScandir:
         self._entries = entries
 
     def __enter__(self):
-        return list(self._entries)
+        res = []
+        for entry_path in self._entries:
+            p = Path(entry_path)
+            parent = str(p.parent)
+            found = False
+            for de in os.scandir(parent):
+                if de.name == p.name:
+                    res.append(de)
+                    found = True
+                    break
+            if not found:
+                raise FileNotFoundError(f"scandir could not find {entry_path}")
+        return res
 
     def __exit__(self, exc_type, exc, tb):
         return False
