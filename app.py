@@ -1,6 +1,7 @@
 import defs, logging, concurrent.futures, traceback
 from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL
 from pathlib import Path
+
 from model import main
 
 defs.logger.disabled = True
@@ -107,45 +108,48 @@ def start():
         messagebox.showerror("Invalid path", "Please enter a valid path")
         return
 
-defs.init()
 
-root = Tk()
-root.title("Music folder formatter")
-root.resizable(False, False)
-root.protocol("WM_DELETE_WINDOW", on_closing)
+def build_ui():
+    global root, dir_path, dir_path_entry, progress_bar, run_button, json_check, dir_button, log_select
+    root = Tk()
+    root.title("Music folder formatter")
+    root.resizable(False, False)
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    
+    mainframe:ttk.Frame = ttk.Frame(root, padding="3 3 12 12")
+    mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
 
-mainframe:ttk.Frame = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+    dir_path = StringVar()
+    dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
+    dir_path_entry.grid(column=2, row=1, sticky=(E + W))
 
-dir_path = StringVar()
-dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
-dir_path_entry.grid(column=2, row=1, sticky=(E + W))
+    progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
 
-progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
+    dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
+    dir_button.grid(column=4, row=1, sticky=(E))
 
-dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
-dir_button.grid(column=4, row=1, sticky=(E))
+    log_label = ttk.Label(mainframe, text="Log level: ")
+    log_label.grid(column=3, row=2, sticky=(E))
 
-log_label = ttk.Label(mainframe, text="Log level: ")
-log_label.grid(column=3, row=2, sticky=(E))
+    log_choice = StringVar()
+    log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
+    log_select = ttk.OptionMenu(mainframe, log_choice, "Off", *log_options, command=set_log_level)
+    log_select.grid(column=4, row=2, sticky=(W + E))
 
-log_choice = StringVar()
-log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
-log_select = ttk.OptionMenu(mainframe, log_choice, "Off", *log_options, command=set_log_level)
-log_select.grid(column=4, row=2, sticky=(W + E))
+    json_var = StringVar()
+    json_check = ttk.Checkbutton(mainframe, text="Generate JSON", command=switch_json, variable=json_var)
+    json_check.grid(column=2, row=2, sticky=(W))
 
-json_var = StringVar()
-json_check = ttk.Checkbutton(mainframe, text="Generate JSON", command=switch_json, variable=json_var)
-json_check.grid(column=2, row=2, sticky=(W))
+    run_button = ttk.Button(mainframe, text="Run", command=start)
+    run_button.grid(column=2, row=3, sticky=(S + W))
 
-run_button = ttk.Button(mainframe, text="Run", command=start)
-run_button.grid(column=2, row=3, sticky=(S + W))
+    close_button = ttk.Button(mainframe, text="Close", command=on_closing)
+    close_button.grid(column=4, row=3, sticky=(S + E))
 
-close_button = ttk.Button(mainframe, text="Close", command=on_closing)
-close_button.grid(column=4, row=3, sticky=(S + E))
-
-dir_path_entry.focus()
-
-root.mainloop()
+if __name__ == "__main__":
+    defs.init()
+    ui = build_ui()
+    dir_path_entry.focus()
+    root.mainloop()
