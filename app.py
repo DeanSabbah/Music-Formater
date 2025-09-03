@@ -1,4 +1,4 @@
-import defs, logging, concurrent.futures, traceback, time
+import defs, logging, concurrent.futures, traceback
 from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL
 from pathlib import Path
 from model import main
@@ -72,7 +72,6 @@ def start():
             except SystemExit:
                 return
             except Exception:
-                defs.logger.fatal("Unknown error\n" + traceback.format_exc())
                 root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
                 root.after(0, close)
             
@@ -88,7 +87,7 @@ def start():
 
         def update_progress_bar():
             progress_bar["value"] = defs.percent_complete * 100
-            if not defs.percent_complete >= 0.999 and not defs.cancel_request:
+            if defs.percent_complete < 0.999 and not defs.cancel_request:
                 root.after(500, update_progress_bar)
         
         run_button["state"] = DISABLED
