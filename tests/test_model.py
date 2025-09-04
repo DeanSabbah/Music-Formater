@@ -43,7 +43,6 @@ class FakeTag:
 @pytest.fixture(autouse=True)
 def reset_state(tmp_path, monkeypatch):
     # ensure defs globals are initialized and basepath points to tmp_path
-    defs.init()
     defs.basepath = str(tmp_path)
     model.music.clear()
 
