@@ -102,7 +102,6 @@ def close():
     ui.root.destroy()
 
 def start():
-    global executor
     try:
         path = ui.dir_path.get()
         if not Path(path).exists() or path == '':
