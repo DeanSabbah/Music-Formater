@@ -28,7 +28,11 @@ class user_interface():
         self.dir_button.grid(column=4, row=2, sticky=(E))
 
         self.message_box = Text(self.mainframe, width=60, height=10, state=DISABLED, wrap='none')
-        defs.message_box = self.message_box
+        defs.message_box = self.message_box 
+        
+        self.message_box_check_var = StringVar()
+        self.message_box_check = ttk.Checkbutton(self.mainframe, text="Display log", command=switch_message_box, variable=self.message_box_check_var)
+        self.message_box_check.grid(column=2, row=3, sticky=(E))
 
         self.progress_bar = ttk.Progressbar(self.mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
 
@@ -43,7 +47,7 @@ class user_interface():
         self.json_var = StringVar()
         self.json_check = ttk.Checkbutton(self.mainframe, text="Generate JSON", command=switch_json, variable=self.json_var)
         self.json_check.grid(column=2, row=3, sticky=(W))
-
+       
         self.run_button = ttk.Button(self.mainframe, text="Run", command=start)
         self.run_button.grid(column=2, row=4, sticky=(S + W))
 
@@ -58,6 +62,10 @@ class user_interface():
 def switch_json():
     defs.logger.info("Switching json to " + str(not defs.json_out))
     defs.json_out = not defs.json_out
+
+def switch_message_box():
+    defs.logger.info("Switching display of message boc to " + str(not defs.display_message_box))
+    defs.display_message_box = not defs.display_message_box
 
 def get_path():
     location = filedialog.askdirectory()
@@ -131,7 +139,8 @@ def start():
             ui.log_select["state"] = NORMAL
             
             ui.progress_bar.grid_remove()
-            ui.message_box.grid_remove()
+            if(defs.display_message_box):
+                ui.message_box.grid_remove()
             ui.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
 
         def update_progress_bar():
@@ -146,7 +155,8 @@ def start():
         
         ui.dir_path_entry.grid_remove()
         # grid the message box and its scrollbars
-        ui.message_box.grid(column=2, row=1, columnspan=3, sticky=(N + S + E + W))
+        if(defs.display_message_box):
+            ui.message_box.grid(column=2, row=1, columnspan=3, sticky=(N + S + E + W))
         ui.progress_bar.grid(column=2, row=2, sticky=(E + W))
         ui.progress_bar["value"] = 0
         
@@ -159,7 +169,7 @@ def start():
         return
 
 if __name__ == "__main__":
-    defs.init()
+    #defs.init()
     ui = user_interface()
     ui.dir_path_entry.focus()
     ui.root.mainloop()
