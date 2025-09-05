@@ -1,5 +1,5 @@
 import defs, logging, concurrent.futures, traceback
-from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL
+from tkinter import W, E, S, N, messagebox, filedialog, ttk, Tk, StringVar, DISABLED, NORMAL, Text
 from pathlib import Path
 
 from model import main
@@ -8,15 +8,70 @@ defs.logger.disabled = True
 
 executor = None
 
+class user_interface():    
+    def __init__(self):
+        self.root = Tk()
+        self.root.title("Music folder formatter")
+        self.root.resizable(False, False)
+        self.root.protocol("WM_DELETE_WINDOW", on_closing)
+        
+        self.mainframe:ttk.Frame = ttk.Frame(self.root, padding="3 3 12 12")
+        self.mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+
+        self.dir_path = StringVar()
+        self.dir_path_entry = ttk.Entry(self.mainframe, width=50, textvariable=self.dir_path)
+        self.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
+        
+        self.dir_button = ttk.Button(self.mainframe, text="Choose Directory", command=get_path)
+        self.dir_button.grid(column=4, row=2, sticky=(E))
+
+        self.message_box = Text(self.mainframe, width=60, height=10, state=DISABLED, wrap='none')
+        defs.message_box = self.message_box 
+        
+        self.message_box_check_var = StringVar()
+        self.message_box_check = ttk.Checkbutton(self.mainframe, text="Display log", command=switch_message_box, variable=self.message_box_check_var)
+        self.message_box_check.grid(column=2, row=3, sticky=(E))
+
+        self.progress_bar = ttk.Progressbar(self.mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
+
+        self.log_label = ttk.Label(self.mainframe, text="Log level: ")
+        self.log_label.grid(column=3, row=3, sticky=(E))
+
+        self.log_choice = StringVar()
+        self.log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
+        self.log_select = ttk.OptionMenu(self.mainframe, self.log_choice, "Off", *self.log_options, command=set_log_level)
+        self.log_select.grid(column=4, row=3, sticky=(W + E))
+
+        self.json_var = StringVar()
+        self.json_check = ttk.Checkbutton(self.mainframe, text="Generate JSON", command=switch_json, variable=self.json_var)
+        self.json_check.grid(column=2, row=3, sticky=(W))
+       
+        self.run_button = ttk.Button(self.mainframe, text="Run", command=start)
+        self.run_button.grid(column=2, row=4, sticky=(S + W))
+
+        self.close_button = ttk.Button(self.mainframe, text="Close", command=on_closing)
+        self.close_button.grid(column=4, row=4, sticky=(S + E))
+
+        self.mainframe.columnconfigure(2, weight=1)
+        self.mainframe.columnconfigure(3, weight=1)
+        self.mainframe.columnconfigure(4, weight=1)
+        self.mainframe.rowconfigure(1, weight=1)
+
 def switch_json():
     defs.logger.info("Switching json to " + str(not defs.json_out))
     defs.json_out = not defs.json_out
+
+def switch_message_box():
+    defs.logger.info("Switching display of message boc to " + str(not defs.display_message_box))
+    defs.display_message_box = not defs.display_message_box
 
 def get_path():
     location = filedialog.askdirectory()
     defs.logger.info("Setting basepath to " + location)
     try:
-        dir_path.set(location)
+        ui.dir_path.set(location)
     except Exception:
         defs.logger.fatal("Unkown Error, Quitting\n" + traceback.format_exc())
         close()
@@ -52,12 +107,11 @@ def close():
     defs.cancel_request = True
     if executor is not None:
         executor.shutdown(wait=False, cancel_futures=True)
-    root.destroy()
+    ui.root.destroy()
 
 def start():
-    global executor
     try:
-        path = dir_path.get()
+        path = ui.dir_path.get()
         if not Path(path).exists() or path == '':
             raise ValueError
         defs.basepath = path
@@ -65,40 +119,46 @@ def start():
         def run_main():
             try:
                 main()
-                root.after(0, lambda: messagebox.showinfo("Done", "Formatting complete!"))
+                ui.root.after(0, lambda: messagebox.showinfo("Done", "Formatting complete!"))
             except PermissionError:
-                root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
+                ui.root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
             except FileExistsError:
-                root.after(0, lambda: messagebox.showerror("Unable to verify permision level", "Unable to verify permision level, please try again"))
+                ui.root.after(0, lambda: messagebox.showerror("Unable to verify permision level", "Unable to verify permision level, please try again"))
             except SystemExit:
                 return
             except Exception:
-                root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
-                root.after(0, close)
+                ui.root.after(0, lambda: messagebox.showerror("Unknown Error, quitting"))
+                ui.root.after(0, close)
+                return
             
             defs.logger.info("Formatting completed")
             
-            run_button["state"] = NORMAL
-            json_check["state"] = NORMAL
-            dir_button["state"] = NORMAL
-            log_select["state"] = NORMAL
+            ui.run_button["state"] = NORMAL
+            ui.json_check["state"] = NORMAL
+            ui.dir_button["state"] = NORMAL
+            ui.log_select["state"] = NORMAL
             
-            progress_bar.grid_remove()
-            dir_path_entry.grid(column=2, row=1, sticky=(E + W))
+            ui.progress_bar.grid_remove()
+            if(defs.display_message_box):
+                ui.message_box.grid_remove()
+            ui.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
 
         def update_progress_bar():
-            progress_bar["value"] = defs.percent_complete * 100
+            ui.progress_bar["value"] = defs.percent_complete * 100
             if defs.percent_complete < 0.999 and not defs.cancel_request:
-                root.after(500, update_progress_bar)
+                ui.root.after(500, update_progress_bar)
         
-        run_button["state"] = DISABLED
-        json_check["state"] = DISABLED
-        dir_button["state"] = DISABLED
-        log_select["state"] = DISABLED
+        ui.run_button["state"] = DISABLED
+        ui.json_check["state"] = DISABLED
+        ui.dir_button["state"] = DISABLED
+        ui.log_select["state"] = DISABLED
         
-        dir_path_entry.grid_remove()
-        progress_bar.grid(column=2, row=1, sticky=(E + W))
-        progress_bar["value"] = 0
+        ui.dir_path_entry.grid_remove()
+        # grid the message box and its scrollbars
+        if(defs.display_message_box):
+            ui.message_box.grid(column=2, row=1, columnspan=3, sticky=(N + S + E + W))
+        ui.progress_bar.grid(column=2, row=2, sticky=(E + W))
+        ui.progress_bar["value"] = 0
         
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(run_main)
@@ -108,48 +168,7 @@ def start():
         messagebox.showerror("Invalid path", "Please enter a valid path")
         return
 
-
-def build_ui():
-    global root, dir_path, dir_path_entry, progress_bar, run_button, json_check, dir_button, log_select
-    root = Tk()
-    root.title("Music folder formatter")
-    root.resizable(False, False)
-    root.protocol("WM_DELETE_WINDOW", on_closing)
-    
-    mainframe:ttk.Frame = ttk.Frame(root, padding="3 3 12 12")
-    mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
-
-    dir_path = StringVar()
-    dir_path_entry = ttk.Entry(mainframe, width=50, textvariable=dir_path)
-    dir_path_entry.grid(column=2, row=1, sticky=(E + W))
-
-    progress_bar = ttk.Progressbar(mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
-
-    dir_button = ttk.Button(mainframe, text="Choose Directory", command=get_path)
-    dir_button.grid(column=4, row=1, sticky=(E))
-
-    log_label = ttk.Label(mainframe, text="Log level: ")
-    log_label.grid(column=3, row=2, sticky=(E))
-
-    log_choice = StringVar()
-    log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
-    log_select = ttk.OptionMenu(mainframe, log_choice, "Off", *log_options, command=set_log_level)
-    log_select.grid(column=4, row=2, sticky=(W + E))
-
-    json_var = StringVar()
-    json_check = ttk.Checkbutton(mainframe, text="Generate JSON", command=switch_json, variable=json_var)
-    json_check.grid(column=2, row=2, sticky=(W))
-
-    run_button = ttk.Button(mainframe, text="Run", command=start)
-    run_button.grid(column=2, row=3, sticky=(S + W))
-
-    close_button = ttk.Button(mainframe, text="Close", command=on_closing)
-    close_button.grid(column=4, row=3, sticky=(S + E))
-
 if __name__ == "__main__":
-    defs.init()
-    ui = build_ui()
-    dir_path_entry.focus()
-    root.mainloop()
+    ui = user_interface()
+    ui.dir_path_entry.focus()
+    ui.root.mainloop()

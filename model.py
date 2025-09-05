@@ -3,6 +3,8 @@ from pathlib import Path
 from tinytag import TinyTag
 import defs, json, random, string, re, time, traceback
 
+logger = defs.log()
+
 music = dict()
 
 # For testing
@@ -19,11 +21,11 @@ def check_permision():
         remove(defs.basepath + f"/{random_str}")
     except FileExistsError:
         if check_permision.number_of_tries >= 2:   # type: ignore
-            defs.logger.warning("File exists, too many tries")
+            logger.warning("File exists, too many tries")
             raise FileExistsError
         # try again
         check_permision.number_of_tries += 1   # type: ignore
-        defs.logger.warning("File exists, trying again with new string")
+        logger.warning("File exists, trying again with new string")
         check_permision()
     
 def wait_for_choice():
@@ -34,7 +36,7 @@ def wait_for_choice():
 def check_canceled(pos:str):
     wait_for_choice()
     if defs.cancel_request:
-        defs.logger.info(f"Cancellation requested {pos}.")
+        logger.info(f"Cancellation requested {pos}.")
         raise SystemExit
 
 def index_files() -> int:
@@ -43,7 +45,7 @@ def index_files() -> int:
         num_files:int = len(entries)
         current_file:int = 0
         indexed_files:int = 0
-        defs.logger.info("Indexing files")
+        logger.info("Indexing files")
         for entry in entries:
             check_canceled("during file indexing")
             current_file += 1
@@ -53,12 +55,12 @@ def index_files() -> int:
                 # Split using common seperators for tracks with multiple artists
                 main_artist = re.split("; |, |&", track.artist)[0].strip() #type: ignore
                 if not music.__contains__(main_artist):
-                    defs.logger.debug(f"Adding {main_artist} to index")
+                    logger.debug(f"Adding {main_artist} to index")
                     music[main_artist] = dict()
                 if not music[main_artist].__contains__(track.album):
-                    defs.logger.debug(f"Adding {track.album} to index")
+                    logger.debug(f"Adding {track.album} to index")
                     music[main_artist][track.album] = []
-                defs.logger.debug(f"Adding {track.title} to index")
+                logger.debug(f"Adding {track.title} to index")
                 music[main_artist][track.album].append({
                     "name": track.title,
                     "path": entry
@@ -69,21 +71,21 @@ def index_files() -> int:
 
 def move_files(num_files:int):
     current_file = 0
-    defs.logger.info("Moving files")
+    logger.info("Moving files")
     for artist in music:
         for album in music[artist]:
             for track in music[artist][album]:
                 check_canceled("during moving files")
                 current_file += 1
-                defs.logger.debug(f"Moving >>{track["path"]}<< to >>{defs.basepath}/{artist}/{album}/{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
-                Path(f"{defs.basepath}/{artist}/{album}").mkdir(parents=True, exist_ok=True)
+                logger.debug(f"Moving >>{track["path"].path}<< to >>{defs.basepath}/{artist}/{album}/{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}<<")
+                Path(f"{defs.basepath}/{artist}/{album}").mkdir(parents=True, exist_ok=True) # type: ignore
                 replace(track["path"], f"{defs.basepath}/{artist}/{album}/{Path(track["path"]).stem}{"".join(Path(track["path"]).suffixes)}")
                 defs.percent_complete = 0.33 + (current_file/num_files) * 0.67
     defs.percent_complete = 0.999
     
 def output_json():
     check_canceled("before writing JSON")
-    defs.logger.info("Serializing music data")
+    logger.info("Serializing music data")
     serializable_music = {
         artist: {
             album: [track["name"] for track in tracks]
@@ -91,7 +93,7 @@ def output_json():
         }
         for artist, albums in music.items()
     }
-    defs.logger.info("Writing JSON")
+    logger.info("Writing JSON")
     with open(f'{defs.basepath}/music_index.json', "wt") as f:
         json.dump(serializable_music, f, indent=2)
 
@@ -104,10 +106,10 @@ def main():
         check_permision.number_of_tries = 0  # type: ignore
         check_permision()
     except PermissionError:
-        defs.logger.error("Admin proviliges required")
+        logger.error("Admin proviliges required")
         raise PermissionError
     except Exception as e:
-        defs.logger.fatal("Unknown error\n" + traceback.format_exc())
+        logger.fatal("Unknown error\n" + traceback.format_exc())
         raise e
     check_canceled("before indexing files")
     num_files = index_files()

@@ -8,7 +8,19 @@ class FakeScandir:
         self._entries = entries
 
     def __enter__(self):
-        return list(self._entries)
+        res = []
+        for entry_path in self._entries:
+            p = Path(entry_path)
+            parent = str(p.parent)
+            found = False
+            for de in os.scandir(parent):
+                if de.name == p.name:
+                    res.append(de)
+                    found = True
+                    break
+            if not found:
+                raise FileNotFoundError(f"scandir could not find {entry_path}")
+        return res
 
     def __exit__(self, exc_type, exc, tb):
         return False
@@ -31,8 +43,10 @@ class FakeTag:
 @pytest.fixture(autouse=True)
 def reset_state(tmp_path, monkeypatch):
     # ensure defs globals are initialized and basepath points to tmp_path
-    defs.init()
-    defs.basepath = str(tmp_path)
+    defs.basepath           = str(tmp_path)
+    defs.percent_complete   = 0
+    defs.cancel_request     = False
+    
     model.music.clear()
 
     # monkeypatch replace to emulate os.replace semantics and handle backslashes

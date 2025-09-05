@@ -1,3 +1,5 @@
+from typing import cast
+from tkinter import Tk
 import pytest
 
 import app, defs, logging
@@ -9,7 +11,6 @@ class DummyExecutor:
         self.shutdown_called = True
 
 def test_switch(monkeypatch):
-    defs.init()
     defs.json_out = False
 
     app.switch_json()
@@ -30,21 +31,24 @@ def test_log(monkeypatch):
         assert defs.logger.level == level
         
 def test_close_shuts_down_executor(monkeypatch):
-    defs.init()
     app.executor = DummyExecutor()
-
+    
+    class UiStub:
+        root:app.user_interface
+    
     class RootStub:
         destroyed = False
         def destroy(self): self.destroyed = True
-    app.root = RootStub()
+
+    app.ui = cast(app.user_interface, UiStub)
+    app.ui.root = cast(Tk, RootStub())
 
     app.close()
     assert defs.cancel_request is True
     assert app.executor.shutdown_called
-    assert app.root.destroyed
+    assert app.ui.root.destroyed # type: ignore[assignment]
     
 def test_on_closing_confirmed(monkeypatch):
-    defs.init()
     called = {}
 
     monkeypatch.setattr(app, "close", lambda: called.setdefault("closed", True))
@@ -54,7 +58,6 @@ def test_on_closing_confirmed(monkeypatch):
     assert called.get("closed") is True
 
 def test_on_closing_cancelled(monkeypatch):
-    defs.init()
     called = {}
     monkeypatch.setattr(app, "close", lambda: called.setdefault("closed", True))
     monkeypatch.setattr("tkinter.messagebox.askokcancel", lambda title, msg: False)
