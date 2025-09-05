@@ -43,7 +43,10 @@ class FakeTag:
 @pytest.fixture(autouse=True)
 def reset_state(tmp_path, monkeypatch):
     # ensure defs globals are initialized and basepath points to tmp_path
-    defs.basepath = str(tmp_path)
+    defs.basepath           = str(tmp_path)
+    defs.percent_complete   = 0
+    defs.cancel_request     = False
+    
     model.music.clear()
 
     # monkeypatch replace to emulate os.replace semantics and handle backslashes
