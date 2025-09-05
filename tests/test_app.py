@@ -32,11 +32,15 @@ def test_log(monkeypatch):
         
 def test_close_shuts_down_executor(monkeypatch):
     app.executor = DummyExecutor()
-    app.ui = app.user_interface()
+    
+    class UiStub:
+        root:app.user_interface
     
     class RootStub:
         destroyed = False
         def destroy(self): self.destroyed = True
+
+    app.ui = cast(app.user_interface, UiStub)
     app.ui.root = cast(Tk, RootStub())
 
     app.close()
