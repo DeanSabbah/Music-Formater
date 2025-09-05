@@ -169,7 +169,6 @@ def start():
         return
 
 if __name__ == "__main__":
-    #defs.init()
     ui = user_interface()
     ui.dir_path_entry.focus()
     ui.root.mainloop()
