@@ -10,61 +10,77 @@ executor = None
 
 class user_interface():    
     def __init__(self):
+        self.build_ui()
+            
+    def build_ui(self):
+        self.build_root()
+        self.build_mainframe()
+        self.build_dir_component()
+        self.build_message_box()
+        self.progress_bar = ttk.Progressbar(self.mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
+        self.build_log_component()
+        self.build_json_check()
+        self.build_buttons()
+    
+    def build_root(self):
         self.root = Tk()
         self.root.title("Music folder formatter")
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", on_closing)
-        
-        self.mainframe:ttk.Frame = ttk.Frame(self.root, padding="3 3 12 12")
-        self.mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-
-        self.dir_path = StringVar()
-        self.dir_path_entry = ttk.Entry(self.mainframe, width=50, textvariable=self.dir_path)
-        self.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
         
-        self.dir_button = ttk.Button(self.mainframe, text="Choose Directory", command=get_path)
-        self.dir_button.grid(column=4, row=2, sticky=(E))
-
-        self.message_box = Text(self.mainframe, width=60, height=10, state=DISABLED, wrap='none')
-        defs.message_box = self.message_box 
-        
-        self.message_box_check_var = StringVar()
-        self.message_box_check = ttk.Checkbutton(self.mainframe, text="Display log", command=switch_message_box, variable=self.message_box_check_var)
-        self.message_box_check.grid(column=2, row=3, sticky=(E))
-
-        self.progress_bar = ttk.Progressbar(self.mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
-
-        self.log_label = ttk.Label(self.mainframe, text="Log level: ")
-        self.log_label.grid(column=3, row=3, sticky=(E))
-
-        self.log_choice = StringVar()
-        self.log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
-        self.log_select = ttk.OptionMenu(self.mainframe, self.log_choice, "Off", *self.log_options, command=set_log_level)
-        self.log_select.grid(column=4, row=3, sticky=(W + E))
-
-        self.json_var = StringVar()
-        self.json_check = ttk.Checkbutton(self.mainframe, text="Generate JSON", command=switch_json, variable=self.json_var)
-        self.json_check.grid(column=2, row=3, sticky=(W))
-       
-        self.run_button = ttk.Button(self.mainframe, text="Run", command=start)
-        self.run_button.grid(column=2, row=4, sticky=(S + W))
-
-        self.close_button = ttk.Button(self.mainframe, text="Close", command=on_closing)
-        self.close_button.grid(column=4, row=4, sticky=(S + E))
-
+    def build_mainframe(self):
+        self.mainframe:ttk.Frame = ttk.Frame(self.root, padding="3 3 12 12")
+        self.mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
         self.mainframe.columnconfigure(2, weight=1)
         self.mainframe.columnconfigure(3, weight=1)
         self.mainframe.columnconfigure(4, weight=1)
         self.mainframe.rowconfigure(1, weight=1)
+        
+    def build_dir_component(self):
+        self.dir_path = StringVar()
+        self.dir_path_entry = ttk.Entry(self.mainframe, width=50, textvariable=self.dir_path)
+        self.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
+
+        self.dir_button = ttk.Button(self.mainframe, text="Choose Directory", command=get_path)
+        self.dir_button.grid(column=4, row=2, sticky=(E))
+    
+    def build_message_box(self):
+        self.message_box_check_var = StringVar()
+        self.message_box_check = ttk.Checkbutton(self.mainframe, text="Display log", command=switch_message_box, variable=self.message_box_check_var)
+        self.message_box_check.grid(column=2, row=3, sticky=(E))
+
+        self.message_box = Text(self.mainframe, width=60, height=10, state=DISABLED, wrap='none')
+        defs.message_box = self.message_box
+    
+    def build_log_component(self):
+        self.log_label = ttk.Label(self.mainframe, text="Log level: ")
+        self.log_label.grid(column=3, row=3, sticky=(E))
+        
+        self.log_choice = StringVar()
+        self.log_options = ["Off", "Debug", "Info", "Warning", "Error", "Critical"]
+        self.log_select = ttk.OptionMenu(self.mainframe, self.log_choice, "Off", *self.log_options, command=set_log_level)
+        self.log_select.grid(column=4, row=3, sticky=(W + E))
+    
+    def build_json_check(self):
+        self.json_var = StringVar()
+        self.json_check = ttk.Checkbutton(self.mainframe, text="Generate JSON", command=switch_json, variable=self.json_var)
+        self.json_check.grid(column=2, row=3, sticky=(W))
+    
+    def build_buttons(self):
+        self.run_button = ttk.Button(self.mainframe, text="Run", command=start)
+        self.run_button.grid(column=2, row=4, sticky=(S + W))
+       
+        self.close_button = ttk.Button(self.mainframe, text="Close", command=on_closing)
+        self.close_button.grid(column=4, row=4, sticky=(S + E))
 
 def switch_json():
     defs.logger.info("Switching json to " + str(not defs.json_out))
     defs.json_out = not defs.json_out
 
 def switch_message_box():
-    defs.logger.info("Switching display of message boc to " + str(not defs.display_message_box))
+    defs.logger.info("Switching display of message box to " + str(not defs.display_message_box))
     defs.display_message_box = not defs.display_message_box
 
 def get_path():
@@ -73,7 +89,7 @@ def get_path():
     try:
         ui.dir_path.set(location)
     except Exception:
-        defs.logger.fatal("Unkown Error, Quitting\n" + traceback.format_exc())
+        defs.logger.fatal("Unknown Error, Quitting\n" + traceback.format_exc())
         close()
         return
 
@@ -123,7 +139,7 @@ def start():
             except PermissionError:
                 ui.root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
             except FileExistsError:
-                ui.root.after(0, lambda: messagebox.showerror("Unable to verify permision level", "Unable to verify permision level, please try again"))
+                ui.root.after(0, lambda: messagebox.showerror("Unable to verify permission level", "Unable to verify permission level, please try again"))
             except SystemExit:
                 return
             except Exception:
