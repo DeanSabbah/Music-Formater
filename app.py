@@ -80,7 +80,7 @@ def switch_json():
     defs.json_out = not defs.json_out
 
 def switch_message_box():
-    defs.logger.info("Switching display of message boc to " + str(not defs.display_message_box))
+    defs.logger.info("Switching display of message box to " + str(not defs.display_message_box))
     defs.display_message_box = not defs.display_message_box
 
 def get_path():
@@ -89,7 +89,7 @@ def get_path():
     try:
         ui.dir_path.set(location)
     except Exception:
-        defs.logger.fatal("Unkown Error, Quitting\n" + traceback.format_exc())
+        defs.logger.fatal("Unknown Error, Quitting\n" + traceback.format_exc())
         close()
         return
 
@@ -139,7 +139,7 @@ def start():
             except PermissionError:
                 ui.root.after(0, lambda: messagebox.showerror("Insufficient permissions", "Please run with elevated permission level"))
             except FileExistsError:
-                ui.root.after(0, lambda: messagebox.showerror("Unable to verify permision level", "Unable to verify permision level, please try again"))
+                ui.root.after(0, lambda: messagebox.showerror("Unable to verify permission level", "Unable to verify permission level, please try again"))
             except SystemExit:
                 return
             except Exception:
