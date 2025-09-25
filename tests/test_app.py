@@ -1,6 +1,5 @@
 from typing import cast
 from tkinter import Tk
-import pytest
 
 import app, defs, logging
 
@@ -17,7 +16,7 @@ def test_switch(monkeypatch):
     assert defs.json_out is True
     app.switch_json()
     assert defs.json_out is False
-    
+
 def test_log(monkeypatch):
     log_levels = { "Debug":logging.DEBUG, "Info":logging.INFO, "Warning":logging.WARNING, "Error":logging.ERROR, "Critical":logging.CRITICAL }
     
@@ -29,7 +28,7 @@ def test_log(monkeypatch):
         
         assert defs.logger.disabled == False
         assert defs.logger.level == level
-        
+
 def test_close_shuts_down_executor(monkeypatch):
     app.executor = DummyExecutor()
     
@@ -47,7 +46,7 @@ def test_close_shuts_down_executor(monkeypatch):
     assert defs.cancel_request is True
     assert app.executor.shutdown_called
     assert app.ui.root.destroyed # type: ignore[assignment]
-    
+
 def test_on_closing_confirmed(monkeypatch):
     called = {}
 

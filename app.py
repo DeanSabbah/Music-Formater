@@ -10,19 +10,19 @@ executor = None
 
 class user_interface():    
     def __init__(self):
-        self.build_ui()
+        self.__build_ui()
             
-    def build_ui(self):
-        self.build_root()
-        self.build_mainframe()
-        self.build_dir_component()
-        self.build_message_box()
+    def __build_ui(self):
+        self.__build_root()
+        self.__build_mainframe()
+        self.__build_dir_component()
+        self.__build_message_box()
         self.progress_bar = ttk.Progressbar(self.mainframe, orient="horizontal", length=306, mode="determinate", maximum=100)
-        self.build_log_component()
-        self.build_json_check()
-        self.build_buttons()
+        self.__build_log_component()
+        self.__build_json_check()
+        self.__build_buttons()
     
-    def build_root(self):
+    def __build_root(self):
         self.root = Tk()
         self.root.title("Music folder formatter")
         self.root.resizable(False, False)
@@ -30,7 +30,7 @@ class user_interface():
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         
-    def build_mainframe(self):
+    def __build_mainframe(self):
         self.mainframe:ttk.Frame = ttk.Frame(self.root, padding="3 3 12 12")
         self.mainframe.grid(column=0, row=0, sticky=(N + W + E + S))
         self.mainframe.columnconfigure(2, weight=1)
@@ -38,7 +38,7 @@ class user_interface():
         self.mainframe.columnconfigure(4, weight=1)
         self.mainframe.rowconfigure(1, weight=1)
         
-    def build_dir_component(self):
+    def __build_dir_component(self):
         self.dir_path = StringVar()
         self.dir_path_entry = ttk.Entry(self.mainframe, width=50, textvariable=self.dir_path)
         self.dir_path_entry.grid(column=2, row=2, sticky=(E + W))
@@ -46,7 +46,7 @@ class user_interface():
         self.dir_button = ttk.Button(self.mainframe, text="Choose Directory", command=get_path)
         self.dir_button.grid(column=4, row=2, sticky=(E))
     
-    def build_message_box(self):
+    def __build_message_box(self):
         self.message_box_check_var = StringVar()
         self.message_box_check = ttk.Checkbutton(self.mainframe, text="Display log", command=switch_message_box, variable=self.message_box_check_var)
         self.message_box_check.grid(column=2, row=3, sticky=(E))
@@ -54,7 +54,7 @@ class user_interface():
         self.message_box = Text(self.mainframe, width=60, height=10, state=DISABLED, wrap='none')
         defs.message_box = self.message_box
     
-    def build_log_component(self):
+    def __build_log_component(self):
         self.log_label = ttk.Label(self.mainframe, text="Log level: ")
         self.log_label.grid(column=3, row=3, sticky=(E))
         
@@ -63,17 +63,23 @@ class user_interface():
         self.log_select = ttk.OptionMenu(self.mainframe, self.log_choice, "Off", *self.log_options, command=set_log_level)
         self.log_select.grid(column=4, row=3, sticky=(W + E))
     
-    def build_json_check(self):
+    def __build_json_check(self):
         self.json_var = StringVar()
         self.json_check = ttk.Checkbutton(self.mainframe, text="Generate JSON", command=switch_json, variable=self.json_var)
         self.json_check.grid(column=2, row=3, sticky=(W))
     
-    def build_buttons(self):
+    def __build_buttons(self):
         self.run_button = ttk.Button(self.mainframe, text="Run", command=start)
         self.run_button.grid(column=2, row=4, sticky=(S + W))
        
         self.close_button = ttk.Button(self.mainframe, text="Close", command=on_closing)
         self.close_button.grid(column=4, row=4, sticky=(S + E))
+    
+    def swtich_buttons(self, state):
+        ui.run_button["state"] = state
+        ui.json_check["state"] = state
+        ui.dir_button["state"] = state
+        ui.log_select["state"] = state
 
 def switch_json():
     defs.logger.info("Switching json to " + str(not defs.json_out))
@@ -82,6 +88,9 @@ def switch_json():
 def switch_message_box():
     defs.logger.info("Switching display of message box to " + str(not defs.display_message_box))
     defs.display_message_box = not defs.display_message_box
+    if(defs.display_message_box):
+        if not messagebox.askokcancel("Are you sure?", "Enabling the messagebox may slow down the process."):
+                ui.message_box_check.invoke()
 
 def get_path():
     location = filedialog.askdirectory()
@@ -149,10 +158,7 @@ def start():
             
             defs.logger.info("Formatting completed")
             
-            ui.run_button["state"] = NORMAL
-            ui.json_check["state"] = NORMAL
-            ui.dir_button["state"] = NORMAL
-            ui.log_select["state"] = NORMAL
+            ui.swtich_buttons(NORMAL)
             
             ui.progress_bar.grid_remove()
             if(defs.display_message_box):
@@ -164,10 +170,7 @@ def start():
             if defs.percent_complete < 0.999 and not defs.cancel_request:
                 ui.root.after(500, update_progress_bar)
         
-        ui.run_button["state"] = DISABLED
-        ui.json_check["state"] = DISABLED
-        ui.dir_button["state"] = DISABLED
-        ui.log_select["state"] = DISABLED
+        ui.swtich_buttons(DISABLED)
         
         ui.dir_path_entry.grid_remove()
         # grid the message box and its scrollbars

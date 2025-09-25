@@ -1,6 +1,10 @@
+from pathlib import Path
+
 import logging, datetime
 
-logging.basicConfig(filename=f"log_{datetime.date.today().year}-{datetime.date.today().month}-{datetime.date.today().day}.txt", format='%(levelname)-8s:: %(filename)-8s @ %(asctime)s: %(message)s')
+Path("logs").mkdir(exist_ok=True)
+
+logging.basicConfig(filename=f"logs/log_{datetime.date.today().year}-{datetime.date.today().month}-{datetime.date.today().day}.txt", format='%(levelname)-8s:: %(filename)-8s @ %(asctime)s: %(message)s')
 
 message_box                 = None
 display_message_box:bool    = False

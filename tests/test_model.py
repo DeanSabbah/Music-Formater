@@ -25,7 +25,6 @@ class FakeScandir:
     def __exit__(self, exc_type, exc, tb):
         return False
 
-
 class FakeTag:
     SUPPORTED_FILE_EXTENSIONS = {".mp3", ".flac"}
 
@@ -38,7 +37,6 @@ class FakeTag:
     def get(cls, path):
         stem = Path(path).stem
         return FakeTag(artist="ArtistX", album="AlbumA", title=stem)
-
 
 @pytest.fixture(autouse=True)
 def reset_state(tmp_path, monkeypatch):
@@ -63,7 +61,6 @@ def reset_state(tmp_path, monkeypatch):
     defs.confiriming_quit = False
     model.music.clear()
 
-
 def test_index_files_and_structure(tmp_path, monkeypatch):
     f1 = tmp_path / "song1.mp3"
     f2 = tmp_path / "song2.flac"
@@ -85,7 +82,6 @@ def test_index_files_and_structure(tmp_path, monkeypatch):
     names = [t["name"] for t in model.music["ArtistX"]["AlbumA"]]
     assert set(names) == {"song1", "song2"}
     assert pytest.approx(defs.percent_complete, rel=1e-3) == 0.333
-
 
 def test_move_files_moves_and_updates_progress(tmp_path, monkeypatch):
     f1 = tmp_path / "s1.mp3"
@@ -109,7 +105,6 @@ def test_move_files_moves_and_updates_progress(tmp_path, monkeypatch):
     assert dest2.exists()
     assert pytest.approx(defs.percent_complete, rel=1e-3) == 0.999
 
-
 def test_output_json_writes_expected_index(tmp_path, monkeypatch):
     f1 = tmp_path / "one.mp3"
     f2 = tmp_path / "two.flac"
@@ -132,7 +127,6 @@ def test_output_json_writes_expected_index(tmp_path, monkeypatch):
     assert "ArtistX" in data
     assert "AlbumA" in data["ArtistX"]
     assert set(data["ArtistX"]["AlbumA"]) == {"one", "two"}
-
 
 def test_check_canceled_raises_on_cancel():
     defs.cancel_request = True
